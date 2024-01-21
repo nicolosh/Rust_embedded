@@ -3,9 +3,16 @@
 
 use core::panic::PanicInfo;
 
+use cortex_m_rt::entry;
+use cortex_m_semihosting::hprintln;
+
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
   loop {}
 }
 
-fn main() {}
+#[entry]
+fn main() -> ! {
+  hprintln!("Starting program!");
+  loop {}
+}
