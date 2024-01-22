@@ -12,5 +12,7 @@ qemu-system-arm \
 -machine lm3s6965evb \
 -nographic \
 -semihosting-config enable=on,target=native \
+-gdb tcp::3333 \
+-S \
 -kernel
 """
