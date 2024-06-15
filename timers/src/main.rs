@@ -3,55 +3,36 @@
 
 use core::panic::PanicInfo;
 
-use cortex_m_rt::entry;
+use cortex_m::asm;
+use cortex_m::peripheral::syst::SystClkSource;
+use cortex_m_rt::{entry, exception};
 use cortex_m_semihosting::hprintln;
-use lm3s6965::interrupt;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
-// General Purpose Timer Module (GPTM)
-//
-// GPTM Control
-const GPTMCTL: u32 = 0x4003000c;
-// GPTM Configuration
-const GPTMCFG: u32 = 0x40030000;
-// GPTM Timer A Mode Register
-const GPTMTAMR: u32 = 0x40030004;
-// GPTM Timer A Interval Load Register
-const GPTMTAILR: u32 = 0x40030028;
-// GPTM Interrupt Mask Register
-const GPTMIMR: u32 = 0x40030018;
-
 // Run-Mode Clock Configuration (RCC)
-const RCC: u32 = 0x400fe060;
+const RCC: u32 = 0x400FE060;
+// Prescaler values
+const SYSCTL_SYSDIV_16: u32 = 16; // 12.5 MHz
+const SYSCTL_SYSDIV_12: u32 = 12; // 16.67 MHz
 
 #[entry]
 fn main() -> ! {
     hprintln!("Starting program!");
-    
-    // Configure GPTM control registers
-    unsafe {
-        // Disable the timer
-        *(GPTMCTL as *mut u32) = 0b0;
-        // Set the timer to 32 bit configuration
-        *(GPTMCFG as *mut u32) = 0x0;
-        // Put the timer in periodic mode
-        *(GPTMTAMR as *mut u32) = 0x2;
-        // Set the reload value (i.e the period of the timer)
-        *(GPTMTAILR as *mut u32) = 25_000_000;
-        // Enable the interrupt
-        *(GPTMIMR as *mut u32) = 0b1;
-        // Enable the timer
-        *(GPTMCTL as *mut u32) = 0b1;
+
+    let div = SYSCTL_SYSDIV_12;
+    let freq = match div {
+        SYSCTL_SYSDIV_12 => 16_670_000,
+        SYSCTL_SYSDIV_16 => 12_500_000,
+        _ => 12_500_000,
     };
 
-    let div = 0x3;
-    let sysdiv = div << 23;
+    // Set the RCC value
     unsafe {
-        // Set the RCC value
+        let sysdiv = div << 23;
         let rcc = {
             let orig = *(RCC as *const u32);
             orig | sysdiv
@@ -59,10 +40,20 @@ fn main() -> ! {
         *(RCC as *mut u32) = rcc;
     };
 
-    loop {}
+    let core_peripherals = cortex_m::Peripherals::take().unwrap();
+    let mut systick = core_peripherals.SYST;
+    systick.enable_interrupt();
+    systick.set_clock_source(SystClkSource::Core);
+    systick.set_reload(freq);
+    systick.clear_current();
+    systick.enable_counter();
+
+    loop {
+        asm::wfi();
+    }
 }
 
-#[interrupt]
-fn TIMER_0A() {
+#[exception]
+fn SysTick() {
     hprintln!("ugh, woke up :(")
 }
