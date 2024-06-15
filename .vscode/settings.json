@@ -19,5 +19,7 @@
   "terminal.integrated.fontSize": 18,
   "workbench.colorTheme": "Visual Studio Dark",
   "workbench.fontAliasing": "antialiased",
-  "workbench.statusBar.visible": true
+  "workbench.statusBar.visible": true,
+  "rust-analyzer.cargo.target": "thumbv7m-none-eabi",
+  "rust-analyzer.cargo.allTargets": false
 }
