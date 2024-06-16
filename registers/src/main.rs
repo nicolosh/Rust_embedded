@@ -3,6 +3,7 @@
 
 use core::panic::PanicInfo;
 
+use cortex_m::asm;
 use cortex_m_rt::entry;
 use cortex_m_rt::exception;
 use cortex_m_semihosting::hprintln;
@@ -28,7 +29,6 @@ fn main() -> ! {
     let mut count: u32 = 0;
     let sleep_dur = CPU_FREQ; // 1 seconds
 
-    // Setup the clock source
     unsafe {
         // Set the timer duration
         *(SYST_RVR as *mut u32) = sleep_dur;
@@ -39,9 +39,7 @@ fn main() -> ! {
     }
 
     loop {
-        count += 1;
-        hprintln!("Round {}: Sleeping", count);
-        cortex_m::asm::wfi();
+        asm::wfi();
     }
 }
 
