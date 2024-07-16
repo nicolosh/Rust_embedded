@@ -8,11 +8,11 @@ use cortex_m_semihosting::hprintln;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-  loop {}
+    loop {}
 }
 
 #[entry]
 fn main() -> ! {
-  hprintln!("Starting program!");
-  loop {}
+    hprintln!("Starting program!");
+    loop {}
 }

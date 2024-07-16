@@ -2,10 +2,6 @@
 target = "thumbv7m-none-eabi"
 
 [target.thumbv7m-none-eabi]
-rustflags = [
-  "-C", "link-arg=-Tlink.x",
-  "-C", "link-arg=--nmagic",
-]
 runner = """
 qemu-system-arm \
 -cpu cortex-m3 \
@@ -14,3 +10,7 @@ qemu-system-arm \
 -semihosting-config enable=on,target=native \
 -kernel
 """
+rustflags = [
+  "-C", "link-arg=-Tlink.x",
+  "-C", "link-arg=--nmagic",
+]
