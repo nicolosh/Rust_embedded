@@ -26,7 +26,7 @@ fn main() -> ! {
     let mut systick = peripherals.SYST;
     systick.enable_interrupt();
     systick.set_clock_source(SystClkSource::Core);
-    systick.set_reload(CPU_FREQ * 2);
+    systick.set_reload(CPU_FREQ);
     systick.clear_current();
     systick.enable_counter();
 
@@ -37,5 +37,5 @@ fn main() -> ! {
 
 #[exception]
 fn SysTick() {
-  hprintln!("ugh, woke up :(")
+    hprintln!("ugh, woke up :(")
 }
