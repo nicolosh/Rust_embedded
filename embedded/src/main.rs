@@ -3,11 +3,9 @@
 
 use core::panic::PanicInfo;
 
-use cortex_m::asm;
 use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use cortex_m_rt::exception;
 use cortex_m_semihosting::hprintln;
 
 #[panic_handler]
@@ -30,12 +28,9 @@ fn main() -> ! {
     systick.clear_current();
     systick.enable_counter();
 
+    let mut counter = 0;
     loop {
-        asm::wfi();
+        counter += 1;
+        hprintln!("counter: {}", counter);
     }
-}
-
-#[exception]
-fn SysTick() {
-    hprintln!("ugh, woke up :(")
 }
